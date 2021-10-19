@@ -30,6 +30,8 @@ client.on('messageCreate', message => {
 
     if (command === 'ping') { // si el usuario escribe esto
         client.commands.get('ping').execute(message, args); // llama y ejecuta al comando "ping" de la carpeta "commands"
+    } else if (command === 'open') {
+        client.commands.get('open').execute(message, args, client);
     }
 });
 
