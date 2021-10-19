@@ -5,13 +5,13 @@ const client = new Client({ intents: [
     Intents.FLAGS.GUILD_MESSAGES
 ] });
 
-const prefix = '!'; // prefijo que se requiere para cada comando
+const prefix = '!';
 
 const fs = require('fs');
 
 client.commands = new Collection();
 
-const commandFiles = fs.readdirSync('./commands/').filter(file => file.endsWith('.js')); // vincula la carpeta "commands" y SOLO leé los archivos terminados en '.js'
+const commandFiles = fs.readdirSync('./commands/').filter(file => file.endsWith('.js'));
 for (const file of commandFiles) {
     const command = require(`./commands/${file}`);
 
@@ -19,21 +19,23 @@ for (const file of commandFiles) {
 };
 
 client.once('ready', () => {
-    console.log("Bot bitacoras it's on!")
+    console.log("Bot bitacoras it's online!")
 });
 
 client.on('messageCreate', message => {
-    if (!message.content.startsWith(prefix) || message.author.bot) return; // no responde a mensajes que no empiezen con el prefijo
+    if (!message.content.startsWith(prefix) || message.author.bot) return;
 
     const args = message.content.slice(prefix.length).split(/ +/);
     const command = args.shift().toLowerCase();
 
-    if (command === 'ping') { // si el usuario escribe esto
-        client.commands.get('ping').execute(message, args); // llama y ejecuta al comando "ping" de la carpeta "commands"
+    if (command === 'ping') {
+        client.commands.get('ping').execute(message, args);
+    } else if (command === 'clear') { // for developers purpose only
+        client.commands.get('clear').execute(message, args, client);
     } else if (command === 'open') {
         client.commands.get('open').execute(message, args, client);
     }
 });
 
 
-client.login('ODk5ODUzMDA3NzQ1ODcxOTIy.YW4zaw.ONZ6smbUcx8xNfCy8s6OBm7Ek2w'); // token del bot
+client.login('ODk5ODUzMDA3NzQ1ODcxOTIy.YW4zaw.ONZ6smbUcx8xNfCy8s6OBm7Ek2w');
