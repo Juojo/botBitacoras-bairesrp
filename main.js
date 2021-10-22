@@ -1,4 +1,4 @@
-const {Client, Intents, Collection, MessageEmbed} = require('discord.js');
+const {Client, Intents, Collection, MessageEmbed, MessageActionRow, MessageSelectMenu} = require('discord.js');
 
 const client = new Client({ intents: [
     Intents.FLAGS.GUILDS,
@@ -33,7 +33,7 @@ client.on('messageCreate', message => {
     } else if (command === 'clear') { // for developers purpose only
         client.commands.get('clear').execute(message, args, client);
     } else if (command === 'open') {
-        client.commands.get('open').execute(message, args, client);
+        client.commands.get('open').execute(message, args, client, MessageActionRow, MessageSelectMenu);
     }
 });
 
