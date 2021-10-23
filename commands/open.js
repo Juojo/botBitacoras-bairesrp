@@ -27,16 +27,19 @@ module.exports = {
 
             client.on('interactionCreate', interaction => {
                 if (interaction.isSelectMenu()){
-                    
 					if(interaction.values[0] === 'Abre') {
 						message.channel.send({ content: 'Se abrio una bitacora!' })
 					} else if(interaction.values[0] === 'Cierra') {
 						message.channel.send({ content: 'Se cerro la bitacora.' })
 					}
-					console.log(interaction.get('createdTimestamp'));
-					let dateObject = new Date(interaction.createdTimestamp[0] * 1000);
 
-					message.channel.send({ content: dateObject.toLocaleString() })
+					console.log(interaction.Message);
+					console.log(interaction.values[0]);
+					console.log(interaction.values);
+					console.log(interaction.values[1, 2]);
+
+					// let dateObject = new Date(interaction.createdTimestamp[0] * 1000);
+					// message.channel.send({ content: dateObject.toLocaleString() })
                 }
                 
             });
