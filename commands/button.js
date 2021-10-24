@@ -2,19 +2,21 @@ module.exports = {
     name: 'button',
     description: "",
     execute(message, args, client, MessageActionRow, MessageButton){
+        let varDisabled = true;
+
         const row = new MessageActionRow()
             .addComponents(
                 new MessageButton()
                     .setCustomId('open')
                     .setLabel('Abrir')
                     .setStyle('SUCCESS')
-                    .setDisabled(false),
+                    .setDisabled(!varDisabled),
 
-                    new MessageButton()
+                new MessageButton()
                     .setCustomId('close')
                     .setLabel('Cerrar')
                     .setStyle('DANGER')
-                    .setDisabled(false),
+                    .setDisabled(varDisabled),
             );
 
         message.channel.send({ content: 'String.', components: [row] })
@@ -25,6 +27,9 @@ module.exports = {
             let openDate = new Date();
             if (interaction.customId === 'open') {
                 console.log(`${interaction.user.username} (ds ID: ${interaction.user.id}) abrio un bitacora el dia ${openDate.toLocaleString()}`);
+                interaction.reply("Example");
+                wait(3000);
+                
             } else if (interaction.customId === 'close') {
                 console.log(`${interaction.user.username} (ds ID: ${interaction.user.id}) cerro un bitacora el dia ${openDate.toLocaleString()}`);
             }
