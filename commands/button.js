@@ -27,8 +27,8 @@ module.exports = {
             let openDate = new Date();
             if (interaction.customId === 'open') {
                 console.log(`${interaction.user.username} (ds ID: ${interaction.user.id}) abrio un bitacora el dia ${openDate.toLocaleString()}`);
-                interaction.reply("Example");
-                wait(3000);
+                interaction.reply({ content: 'Example', ephemeral: true });
+                //wait(3000);
                 
             } else if (interaction.customId === 'close') {
                 console.log(`${interaction.user.username} (ds ID: ${interaction.user.id}) cerro un bitacora el dia ${openDate.toLocaleString()}`);
