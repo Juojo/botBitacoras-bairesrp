@@ -33,7 +33,7 @@ client.on('messageCreate', message => {
     } else if (command === 'clear') { // for developers purpose only
         client.commands.get('clear').execute(message, args, client);
     } else if (command === 'open') {
-        client.commands.get('open').execute(message, args, client, MessageActionRow, MessageSelectMenu);
+        client.commands.get('open').execute(message, args, client, MessageActionRow, MessageSelectMenu, MessageEmbed);
     } else if (command === 'button') {
         client.commands.get('button').execute(message, args, client, MessageActionRow, MessageButton);
     }
