@@ -24,13 +24,9 @@ module.exports = {
         client.on('interactionCreate', interaction => {
             if (!interaction.isButton()) return;
 
-            // const myEmbed = new MessageEmbed()
-            //     .setColor('#3BA55D')
-            //     .setTitle('Bitacora abierta correctamente');
-
             let openDate = new Date();
             if (interaction.customId === 'open') {
-
+                //('localhost:3000/bitacoraInsert');
                     const myEmbed = {
                         color: 0x3BA55D,
                         title: 'Bitacora abierta correctamente <a:tick:902695712163246150>',

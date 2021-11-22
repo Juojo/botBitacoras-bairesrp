@@ -19,7 +19,7 @@ for (const file of commandFiles) {
 };
 
 client.once('ready', () => {
-    console.log("Bot bitacoras it's online!")
+    console.log("Bot bitacoras online!")
 });
 
 client.on('messageCreate', message => {
