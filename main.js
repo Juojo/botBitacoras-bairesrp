@@ -1,3 +1,4 @@
+require('dotenv').config();
 const {Client, Intents, Collection, MessageEmbed, MessageActionRow, MessageSelectMenu, MessageButton} = require('discord.js');
 
 const client = new Client({ intents: [
@@ -40,4 +41,4 @@ client.on('messageCreate', message => {
 });
 
 
-client.login('ODk5ODUzMDA3NzQ1ODcxOTIy.YW4zaw.ONZ6smbUcx8xNfCy8s6OBm7Ek2w');
+client.login(process.env.BOT_TOKEN);
