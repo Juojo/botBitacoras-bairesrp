@@ -1,5 +1,6 @@
 require('dotenv').config();
 const {Client, Intents, Collection, MessageEmbed, MessageActionRow, MessageSelectMenu, MessageButton} = require('discord.js');
+const db = require('./db/database')
 
 const client = new Client({ intents: [
     Intents.FLAGS.GUILDS,
