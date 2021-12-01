@@ -1,6 +1,11 @@
 require('dotenv').config();
 const {Client, Intents, Collection, MessageEmbed, MessageActionRow, MessageSelectMenu, MessageButton} = require('discord.js');
-const db = require('./db/database')
+//const db = require('./db/database')
+// let connection = require('./db/database');
+
+// (async () => {
+//     connection = await require('./db/database')
+// })
 
 const client = new Client({ intents: [
     Intents.FLAGS.GUILDS,
@@ -38,6 +43,8 @@ client.on('messageCreate', message => {
         client.commands.get('open').execute(message, args, client, MessageActionRow, MessageSelectMenu, MessageEmbed);
     } else if (command === 'button') {
         client.commands.get('button').execute(message, args, client, MessageActionRow, MessageButton);
+    } else if (command === 'insert') {
+        client.commands.get('insert').execute(message, args, connection);
     }
 });
 
