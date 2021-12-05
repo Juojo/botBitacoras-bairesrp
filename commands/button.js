@@ -3,6 +3,7 @@ module.exports = {
     description: "",
     execute(message, args, client, MessageActionRow, MessageButton, MessageEmbed){
         let varDisabled = true;
+        const logsChat = client.channels.cache.get('899866780741296138')
 
         const row = new MessageActionRow()
             .addComponents(
@@ -18,35 +19,35 @@ module.exports = {
                     .setStyle('DANGER')
                     .setDisabled(varDisabled),
             );
-
         message.channel.send({ content: 'String.', components: [row] })
+
 
         client.on('interactionCreate', interaction => {
             if (!interaction.isButton()) return;
-
             let openDate = new Date();
-            if (interaction.customId === 'open') {
-                //('localhost:3000/bitacoraInsert');
-                    const myEmbed = {
-                        color: 0x3BA55D,
-                        title: 'Bitacora abierta correctamente <a:tick:902695712163246150>',
-                        fields: [
-                            {
-                                name: 'Dia:',
-                                value: `${openDate.toLocaleDateString()}`,
-                                inline: false,
-                            },
-                            {
-                                name: 'Inicio:',
-                                value: `${openDate.toLocaleTimeString()}`,
-                                inline: true,
-                            },
-                        ],
-                    };
 
-                console.log(`${interaction.user.username} (ds ID: ${interaction.user.id}) abrio un bitacora el dia ${openDate.toLocaleString()}`);
-                interaction.reply({ embeds: [myEmbed], ephemeral: true });
-                //wait(3000);
+            if (interaction.customId === 'open') {
+                const bitAbierta = {
+                    color: 0x3BA55D,
+                    title: 'Bitacora abierta correctamente <a:tick:902695712163246150>',
+                    fields: [
+                        {
+                            name: 'Dia:',
+                            value: `${openDate.toLocaleDateString()}`,
+                            inline: false,
+                        },
+                        {
+                            name: 'Inicio:',
+                            value: `${openDate.toLocaleTimeString()}`,
+                            inline: true,
+                        },
+                    ],
+                };
+
+                console.log(`${interaction.user.username} (ds ID: ${interaction.user.id}) abrio un bitacora el dia ${openDate.toLocaleString()}`); // Informa la accion via consola
+                logsChat.send({ content: `\`[${openDate.toLocaleString()}] [ Usuario: ${interaction.user.username} | DiscordId: ${interaction.user.id} ]\` Abrio un bitacora` }) // Informa la accion via #bitacora-logs
+
+                interaction.reply({ embeds: [bitAbierta], ephemeral: true }); // Envia una respuesta al usuario
                 
             } else if (interaction.customId === 'close') {
                 console.log(`${interaction.user.username} (ds ID: ${interaction.user.id}) cerro un bitacora el dia ${openDate.toLocaleString()}`);
