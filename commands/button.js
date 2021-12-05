@@ -2,22 +2,22 @@ module.exports = {
     name: 'button',
     description: "",
     execute(message, args, client, MessageActionRow, MessageButton, MessageEmbed){
-        let varDisabled = true;
+        const bitacora = new Map();
         const logsChat = client.channels.cache.get('899866780741296138')
+
+        console.log(bitacora)
 
         const row = new MessageActionRow()
             .addComponents(
                 new MessageButton()
                     .setCustomId('open')
                     .setLabel('Abrir')
-                    .setStyle('SUCCESS')
-                    .setDisabled(!varDisabled),
+                    .setStyle('SUCCESS'),
 
                 new MessageButton()
                     .setCustomId('close')
                     .setLabel('Cerrar')
-                    .setStyle('DANGER')
-                    .setDisabled(varDisabled),
+                    .setStyle('DANGER'),
             );
         message.channel.send({ content: 'String.', components: [row] })
 
@@ -44,13 +44,46 @@ module.exports = {
                     ],
                 };
 
+                bitacora.set(
+                    `${interaction.user.id}`, {
+                        username: `${interaction.user.username}`,
+                        dsId: `${interaction.user.id}`,
+                        openDate: `${openDate.toLocaleString()}`
+                        }
+                    )
+
                 console.log(`${interaction.user.username} (ds ID: ${interaction.user.id}) abrio un bitacora el dia ${openDate.toLocaleString()}`); // Informa la accion via consola
-                logsChat.send({ content: `\`[${openDate.toLocaleString()}] [ Usuario: ${interaction.user.username} | DiscordId: ${interaction.user.id} ]\` Abrio un bitacora` }) // Informa la accion via #bitacora-logs
+                logsChat.send({ content: `\`[${openDate.toLocaleString()}] [ Usuario: ${interaction.user.username} | DiscordId: ${interaction.user.id} ]\` Abrio una bitacora  :green_circle:` }) // Informa la accion via #bitacora-logs
+                console.log(bitacora);
 
                 interaction.reply({ embeds: [bitAbierta], ephemeral: true }); // Envia una respuesta al usuario
                 
             } else if (interaction.customId === 'close') {
+                const bitCerrada = {
+                    color: 0xed4245,
+                    title: 'Bitacora cerrada correctamente',
+                    fields: [
+                        {
+                            name: 'Dia:',
+                            value: `${openDate.toLocaleDateString()}`,
+                            inline: false,
+                        },
+                        {
+                            name: 'Inicio:',
+                            value: `${openDate.toLocaleTimeString()}`,
+                            inline: true,
+                        },
+                    ],
+                };
+
+                // Acá va la parte en la que se inserta a la base de datos
+                bitacora.delete(`${interaction.user.id}`)
+
                 console.log(`${interaction.user.username} (ds ID: ${interaction.user.id}) cerro un bitacora el dia ${openDate.toLocaleString()}`);
+                logsChat.send({ content: `\`[${openDate.toLocaleString()}] [ Usuario: ${interaction.user.username} | DiscordId: ${interaction.user.id} ]\` Cerro una bitacora  :red_circle:` })
+                console.log(bitacora);
+
+                interaction.reply({ embeds: [bitCerrada], ephemeral: true }); // Envia una respuesta al usuario
             }
         });
     }
