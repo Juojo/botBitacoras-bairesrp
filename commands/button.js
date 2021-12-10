@@ -24,7 +24,24 @@ module.exports = {
                     .setLabel('Estado de mis bitacoras')
                     .setStyle('SECONDARY'),
             );
-        message.channel.send({ content: 'String.', components: [row] })
+
+        const introEmbed = new MessageEmbed()
+                .setColor('#187bcd')
+                .setTitle('Bitácoras de la PFA')
+                .setDescription('Esto que estás viendo es el lugar donde se abren y cierran tus bitácoras. Es obligatorio que siempre que entres a rolear de policía abras una y luego cuando termines la cierres.')
+                .addFields(
+                    { name: '¿Por qué son importantes las bitácoras?', value: 'Son importantes ya que toman registro de tu tiempo de juego y nos ayudan a ver quienes son activos y cumplen el mínimo de horas semanales. Esto se tiene en cuenta a la hora de subir de rango.', inline: true },
+                    { name: '¿Qué pasa si no puedo rolear por un tiempo?', value: 'No hay problema! pero te pedimos que nos avises con un mensaje en el canal <#835118115343695882> indicando desde cuando y hasta que dia vas a estar inactivo.', inline: true },
+                );
+        
+        const helpEmbed = new MessageEmbed()
+                    .setColor('#187bcd')
+                    .addFields(
+                        { name: '¿Cómo funciona el bot?', value: '・Si queres **abrir** una bitácora tenes que hacer click sobre el botón que dice *"Abrir"*, esto resultará en una respuesta indicando si se abrió correctamente.' },
+                        { name: '\u200b', value: '・Para **cerrarla** es muy similar solo que esta vez es haciendo click en el botón de *"Cerrar"*, el bot también te notificará si la acción se concreta.' },
+                    );
+
+        message.channel.send({ embeds: [introEmbed, helpEmbed], components: [row] })
 
 
         // client.on('interactionCreate', async interaction => {

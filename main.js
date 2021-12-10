@@ -119,7 +119,7 @@ client.on('messageCreate', message => {
     } else if (command === 'open') {
         client.commands.get('open').execute(message, args, client, MessageActionRow, MessageSelectMenu, MessageEmbed);
     } else if (command === 'button') {
-        client.commands.get('button').execute(message, args, client, MessageActionRow, MessageButton);
+        client.commands.get('button').execute(message, args, client, MessageActionRow, MessageButton, MessageEmbed);
     } else if (command === 'insert') {
         client.commands.get('insert').execute(message, args, connection);
     }
