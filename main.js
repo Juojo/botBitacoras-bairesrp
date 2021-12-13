@@ -30,7 +30,7 @@ client.once('ready', () => {
 });
 
 // {!!!} Mensaje que abre y cierra las bitacoras =>
-client.on('interactionCreate', async interaction => {
+client.on('interactionCreate', interaction => {
     if (!interaction.isButton()) return;
     let user = interaction.user.id
     let date = new Date().toISOString().slice(0, 19).replace('T', ' ');
@@ -95,20 +95,10 @@ client.on('interactionCreate', async interaction => {
                 ],
             };
 
-            // console.log(bitacora)
-            // console.log(bitacora.dsId)
-
-            // let dsId = bitacora.user.dsId
-            // let username = bitacora.user.username
-            // let openDate = bitacora.user.openDate
-            // let closeDate = date
-
             // {!!!} Acá va la parte en la que se inserta a la base de datos
-            // let INSERT = `INSERT INTO bitacoras VALUES (" ", ${bitacora.dsId}, ${bitacora.username}, ${bitacora.openDate}, ${openDate})`;
-            let INSERT = `INSERT INTO bitacoras(bitacoraId, discordId, username) VALUES ("", 1111, "nombre")`;
-            //connection.query(INSERT);
-
-            //connection.end();
+            let INSERT = `INSERT INTO bitacoras(bitacoraId, discordId, username) VALUES ("", ${bitacora.get(user).dsId}, "${bitacora.get(user).username}")`;
+            connection.query(INSERT);
+            connection.end();
 
             bitacora.delete(`${interaction.user.id}`)
 
