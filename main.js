@@ -1,11 +1,9 @@
 require('dotenv').config();
 const {Client, Intents, Collection, MessageEmbed, MessageActionRow, MessageSelectMenu, MessageButton} = require('discord.js');
-//const db = require('./db/database')
-// let connection = require('./db/database');
 
-// (async () => {
-//     connection = await require('./db/database')
-// })
+let mysql = require('mysql');
+let config = require('./dbNew/config')
+let connection = mysql.createConnection(config);
 
 const client = new Client({ intents: [
     Intents.FLAGS.GUILDS,
@@ -35,7 +33,8 @@ client.once('ready', () => {
 client.on('interactionCreate', async interaction => {
     if (!interaction.isButton()) return;
     let user = interaction.user.id
-    let openDate = new Date();
+    let date = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    let dateEmb = new Date()
 
     const logsChat = client.channels.cache.get('899866780741296138')
 
@@ -50,12 +49,12 @@ client.on('interactionCreate', async interaction => {
                 fields: [
                     {
                         name: 'Dia:',
-                        value: `${openDate.toLocaleDateString()}`,
+                        value: `${dateEmb.toLocaleDateString()}`,
                         inline: false,
                     },
                     {
                         name: 'Inicio:',
-                        value: `${openDate.toLocaleTimeString()}`,
+                        value: `${dateEmb.toLocaleTimeString()}`,
                         inline: true,
                     },
                 ],
@@ -65,11 +64,11 @@ client.on('interactionCreate', async interaction => {
                 `${interaction.user.id}`, {
                     username: `${interaction.user.username}`,
                     dsId: `${interaction.user.id}`,
-                    openDate: `${openDate.toLocaleString()}`
+                    openDate: `${date}`
                     }
                 )
 
-            logsChat.send({ content: `\`[${openDate.toLocaleString()}] [ Usuario: ${interaction.user.username} | DiscordId: ${interaction.user.id} ]\` Abrio una bitacora  :green_circle:` }) // Informa la accion via #bitacora-logs
+            logsChat.send({ content: `\`[${date}] [ Usuario: ${interaction.user.username} | DiscordId: ${interaction.user.id} ]\` Abrio una bitacora  :green_circle:` }) // Informa la accion via #bitacora-logs
 
             interaction.reply({ embeds: [bitAbierta], ephemeral: true }); // Envia una respuesta al usuario
         }
@@ -85,21 +84,35 @@ client.on('interactionCreate', async interaction => {
                 fields: [
                     {
                         name: 'Dia:',
-                        value: `${openDate.toLocaleDateString()}`,
+                        value: `${dateEmb.toLocaleDateString()}`,
                         inline: false,
                     },
                     {
                         name: 'Inicio:',
-                        value: `${openDate.toLocaleTimeString()}`,
+                        value: `${dateEmb.toLocaleTimeString()}`,
                         inline: true,
                     },
                 ],
             };
 
+            // console.log(bitacora)
+            // console.log(bitacora.dsId)
+
+            // let dsId = bitacora.user.dsId
+            // let username = bitacora.user.username
+            // let openDate = bitacora.user.openDate
+            // let closeDate = date
+
             // {!!!} Acá va la parte en la que se inserta a la base de datos
+            // let INSERT = `INSERT INTO bitacoras VALUES (" ", ${bitacora.dsId}, ${bitacora.username}, ${bitacora.openDate}, ${openDate})`;
+            let INSERT = `INSERT INTO bitacoras(bitacoraId, discordId, username) VALUES ("", 1111, "nombre")`;
+            //connection.query(INSERT);
+
+            //connection.end();
+
             bitacora.delete(`${interaction.user.id}`)
 
-            logsChat.send({ content: `\`[${openDate.toLocaleString()}] [ Usuario: ${interaction.user.username} | DiscordId: ${interaction.user.id} ]\` Cerro una bitacora  :red_circle:` })
+            logsChat.send({ content: `\`[${date}] [ Usuario: ${interaction.user.username} | DiscordId: ${interaction.user.id} ]\` Cerro una bitacora  :red_circle:` })
 
             interaction.reply({ embeds: [bitCerrada], ephemeral: true }); // Envia una respuesta al usuario
         }
