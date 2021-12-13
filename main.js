@@ -98,7 +98,7 @@ client.on('interactionCreate', interaction => {
             // {!!!} Acá va la parte en la que se inserta a la base de datos
             let INSERT = `INSERT INTO bitacoras(bitacoraId, discordId, username) VALUES ("", ${bitacora.get(user).dsId}, "${bitacora.get(user).username}")`;
             connection.query(INSERT);
-            connection.end();
+            //connection.end();
 
             bitacora.delete(`${interaction.user.id}`)
 
@@ -124,7 +124,9 @@ client.on('messageCreate', message => {
     } else if (command === 'button') {
         client.commands.get('button').execute(message, args, client, MessageActionRow, MessageButton, MessageEmbed);
     } else if (command === 'insert') {
-        client.commands.get('insert').execute(message, args, connection);
+        client.commands.get('insert').execute(message, args);
+    } else if (command.get('endSql')) {
+        connection.end();
     }
 });
 
