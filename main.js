@@ -29,11 +29,11 @@ client.once('ready', () => {
     console.log("Bot bitacoras online!")
 });
 
-// {!!!} Mensaje que abre y cierra las bitacoras =>
-client.on('interactionCreate', interaction => {
+// {!!!} Botones que abren y cierran las bitacoras =>
+client.on('interactionCreate', async interaction => {
     if (!interaction.isButton()) return;
     let user = interaction.user.id
-    let date = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    let date = new Date().toISOString().slice(0, 19).replace('T', ' '); // ESTA MAL EL TIME ZONE
     let dateEmb = new Date()
 
     const logsChat = client.channels.cache.get('899866780741296138')
@@ -96,9 +96,12 @@ client.on('interactionCreate', interaction => {
             };
 
             // {!!!} Acá va la parte en la que se inserta a la base de datos
-            let INSERT = `INSERT INTO bitacoras(bitacoraId, discordId, username) VALUES ("", ${bitacora.get(user).dsId}, "${bitacora.get(user).username}")`;
-            connection.query(INSERT);
-            //connection.end();
+            async function insertSql() {
+                let INSERT = `INSERT INTO bitacoras VALUES ("", ${bitacora.get(user).dsId}, "${bitacora.get(user).username}", "${bitacora.get(user).openDate}", "${date}")`;
+                connection.query(INSERT);
+                //connection.end();
+            };
+            await insertSql();
 
             bitacora.delete(`${interaction.user.id}`)
 
@@ -109,7 +112,7 @@ client.on('interactionCreate', interaction => {
     }
 });
 
-client.on('messageCreate', message => {
+client.on('messageCreate', async message => {
     if (!message.content.startsWith(prefix) || message.author.bot) return;
 
     const args = message.content.slice(prefix.length).split(/ +/);
@@ -125,8 +128,6 @@ client.on('messageCreate', message => {
         client.commands.get('button').execute(message, args, client, MessageActionRow, MessageButton, MessageEmbed);
     } else if (command === 'insert') {
         client.commands.get('insert').execute(message, args);
-    } else if (command.get('endSql')) {
-        connection.end();
     }
 });
 
