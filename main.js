@@ -97,15 +97,25 @@ client.on('interactionCreate', async interaction => {
 
             // {!!!} Acá va la parte en la que se inserta a la base de datos
             async function insertSql() {
-                let INSERT = `INSERT INTO bitacoras VALUES ("", ${bitacora.get(user).dsId}, "${bitacora.get(user).username}", "${bitacora.get(user).openDate}", "${date}")`;
-                connection.query(INSERT);
-                //connection.end();
+                connection.query(`INSERT INTO bitacoras VALUES ("", ${bitacora.get(user).dsId}, "${bitacora.get(user).username}", "${bitacora.get(user).openDate}", "${date}")`);
             };
             await insertSql();
+            
+            //var id;
+            connection.query(`SELECT max(bitacoraId) As "bitid" FROM bitacoras where discordId = ${user}`, function select(err, results, fields) {
+                if (err) {
+                    return console.error(err);
+                }
+                
+                window.id = (results[0]).bitid;
+                console.log(id);
+                
+            });
+            //console.log(id);
 
             bitacora.delete(`${interaction.user.id}`)
 
-            logsChat.send({ content: `\`[${date}] [ Usuario: ${interaction.user.username} | DiscordId: ${interaction.user.id} ]\` Cerro una bitacora  :red_circle:` })
+            logsChat.send({ content: `\`[ bitacoraId: ${id} ] [${date}] [ Usuario: ${interaction.user.username} | DiscordId: ${interaction.user.id} ]\` Cerro una bitacora  :red_circle:` })
 
             interaction.reply({ embeds: [bitCerrada], ephemeral: true }); // Envia una respuesta al usuario
         }
