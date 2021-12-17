@@ -33,8 +33,13 @@ client.once('ready', () => {
 client.on('interactionCreate', async interaction => {
     if (!interaction.isButton()) return;
     let user = interaction.user.id
-    let date = new Date().toISOString().slice(0, 19).replace('T', ' '); // ESTA MAL EL TIME ZONE
+    //let date = new Date().toISOString().slice(0, 19).replace('T', ' '); // ESTA MAL EL TIME ZONE
     let dateEmb = new Date()
+
+    var tzoffset = (new Date()).getTimezoneOffset() * 60000;
+    var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, 19).replace('T', ' ');
+    
+    console.log(localISOTime)
 
     const logsChat = client.channels.cache.get('899866780741296138')
 
@@ -64,11 +69,11 @@ client.on('interactionCreate', async interaction => {
                 `${interaction.user.id}`, {
                     username: `${interaction.user.username}`,
                     dsId: `${interaction.user.id}`,
-                    openDate: `${date}`
+                    openDate: `${localISOTime}`
                     }
                 )
 
-            logsChat.send({ content: `\`[${date}] [ Usuario: ${interaction.user.username} | DiscordId: ${interaction.user.id} ]\` Abrio una bitacora` }) // Informa la accion via #bitacora-logs
+            logsChat.send({ content: `\`[${localISOTime}] [ Usuario: ${interaction.user.username} | DiscordId: ${interaction.user.id} ]\` Abrio una bitacora` }) // Informa la accion via #bitacora-logs
 
             interaction.reply({ embeds: [bitAbierta], ephemeral: true }); // Envia una respuesta al usuario
         }
@@ -97,7 +102,7 @@ client.on('interactionCreate', async interaction => {
 
             // {!!!} Acá va la parte en la que se inserta a la base de datos
             async function insertSql() {
-                connection.query(`INSERT INTO bitacoras VALUES ("", ${bitacora.get(user).dsId}, "${bitacora.get(user).username}", "${bitacora.get(user).openDate}", "2021-12-18 22:56:13")`);
+                connection.query(`INSERT INTO bitacoras VALUES ("", ${bitacora.get(user).dsId}, "${bitacora.get(user).username}", "${bitacora.get(user).openDate}", "${localISOTime}")`);
             };
             await insertSql();
             
@@ -117,14 +122,13 @@ client.on('interactionCreate', async interaction => {
 
                     if (lenght > "06:00:00" && lenght < "11:59:59") {
                         var alert = "  :yellow_square:";
-                    }
-                    else if (lenght > "12:00:00" && lenght < "23:59:59") {
+                    } else if (lenght > "12:00:00" && lenght < "23:59:59") {
                         var alert = "  :orange_square:";
                     } else if (lenght > "24:00:00") {
                         var alert = "  :red_square:";
                     }
 
-                    logsChat.send({ content: `\`[${date}] [ Usuario: ${interaction.user.username} | DiscordId: ${interaction.user.id} ]\` \`[ bitId: ${id} | duración: ${lenght} ]\` Cerro una bitacora${alert}` })
+                    logsChat.send({ content: `\`[${localISOTime}] [ Usuario: ${interaction.user.username} | DiscordId: ${interaction.user.id} ]\` \`[ bitId: ${id} | duración: ${lenght} ]\` Cerro una bitacora${alert}` })
                 });
             });
             
