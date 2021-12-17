@@ -68,7 +68,7 @@ client.on('interactionCreate', async interaction => {
                     }
                 )
 
-            logsChat.send({ content: `\`[${date}] [ Usuario: ${interaction.user.username} | DiscordId: ${interaction.user.id} ]\` Abrio una bitacora  :green_circle:` }) // Informa la accion via #bitacora-logs
+            logsChat.send({ content: `\`[${date}] [ Usuario: ${interaction.user.username} | DiscordId: ${interaction.user.id} ]\` Abrio una bitacora` }) // Informa la accion via #bitacora-logs
 
             interaction.reply({ embeds: [bitAbierta], ephemeral: true }); // Envia una respuesta al usuario
         }
@@ -97,25 +97,38 @@ client.on('interactionCreate', async interaction => {
 
             // {!!!} Acá va la parte en la que se inserta a la base de datos
             async function insertSql() {
-                connection.query(`INSERT INTO bitacoras VALUES ("", ${bitacora.get(user).dsId}, "${bitacora.get(user).username}", "${bitacora.get(user).openDate}", "${date}")`);
+                connection.query(`INSERT INTO bitacoras VALUES ("", ${bitacora.get(user).dsId}, "${bitacora.get(user).username}", "${bitacora.get(user).openDate}", "2021-12-18 22:56:13")`);
             };
             await insertSql();
             
-            //var id;
             connection.query(`SELECT max(bitacoraId) As "bitid" FROM bitacoras where discordId = ${user}`, function select(err, results, fields) {
                 if (err) {
                     return console.error(err);
                 }
-                
-                window.id = (results[0]).bitid;
+                let id = (results[0]).bitid;
                 console.log(id);
-                
+
+                connection.query(`select timediff(closeDate, openDate) As "duracion" from bitacoras where bitacoraId = ${id}`, function select2(err, results, fields) {
+                    if (err) {
+                        return console.log(err);
+                    }
+                    let lenght = (results[0].duracion)
+                    var alert = "";
+
+                    if (lenght > "06:00:00" && lenght < "11:59:59") {
+                        var alert = "  :yellow_square:";
+                    }
+                    else if (lenght > "12:00:00" && lenght < "23:59:59") {
+                        var alert = "  :orange_square:";
+                    } else if (lenght > "24:00:00") {
+                        var alert = "  :red_square:";
+                    }
+
+                    logsChat.send({ content: `\`[${date}] [ Usuario: ${interaction.user.username} | DiscordId: ${interaction.user.id} ]\` \`[ bitId: ${id} | duración: ${lenght} ]\` Cerro una bitacora${alert}` })
+                });
             });
-            //console.log(id);
-
+            
             bitacora.delete(`${interaction.user.id}`)
-
-            logsChat.send({ content: `\`[ bitacoraId: ${id} ] [${date}] [ Usuario: ${interaction.user.username} | DiscordId: ${interaction.user.id} ]\` Cerro una bitacora  :red_circle:` })
 
             interaction.reply({ embeds: [bitCerrada], ephemeral: true }); // Envia una respuesta al usuario
         }
