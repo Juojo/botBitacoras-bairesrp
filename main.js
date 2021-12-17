@@ -1,14 +1,14 @@
 require('dotenv').config();
 const {Client, Intents, Collection, MessageEmbed, MessageActionRow, MessageSelectMenu, MessageButton} = require('discord.js');
 
+
 let mysql = require('mysql');
 let config = require('./dbNew/config')
 let connection = mysql.createConnection(config);
 
-const client = new Client({ intents: [
-    Intents.FLAGS.GUILDS,
-    Intents.FLAGS.GUILD_MESSAGES
-] });
+const client = new Client({
+    intents: [ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
+});
 
 const bitacora = new Map();
 
@@ -27,7 +27,32 @@ for (const file of commandFiles) {
 
 client.once('ready', () => {
     console.log("Bot bitacoras online!")
+
+    const guildId = '899852504240623617'
+    const guild = client.guilds.cache.get(guildId)
+    let commands
+
+    if (guild) {
+        commands = guild.commands
+    } else {
+        commands = client.application?.commands
+    }
+
+    commands?.create({
+        name: 'ping',
+        description: 'Responde con un pong.',
+    })
 });
+
+client.on('interactionCreate', async interaction => {
+    if (!interaction.isCommand()) return;
+
+    const { commandName, options } = interaction
+
+    if (commandName === 'ping') {
+        interaction.reply({ content: 'pong!', ephemeral: true })
+    }
+})
 
 // {!!!} Botones que abren y cierran las bitacoras =>
 client.on('interactionCreate', async interaction => {
@@ -39,7 +64,7 @@ client.on('interactionCreate', async interaction => {
     var tzoffset = (new Date()).getTimezoneOffset() * 60000;
     var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, 19).replace('T', ' ');
     
-    console.log(localISOTime)
+    //console.log(localISOTime)
 
     const logsChat = client.channels.cache.get('899866780741296138')
 
