@@ -9,3 +9,7 @@ create table bitacoras (
     openDate dateTime,
     closeDate dateTime
 );
+
+ALTER TABLE bitacoras ADD estado varchar(20) DEFAULT 'active';
+
+UPDATE bitacoras SET estado = 'inactive' WHERE bitacoraId = 119;

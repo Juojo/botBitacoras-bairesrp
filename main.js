@@ -1,5 +1,7 @@
 require('dotenv').config();
 const {Client, Intents, Collection, MessageEmbed, MessageActionRow, MessageSelectMenu, MessageButton} = require('discord.js');
+//import DiscordJs, { Intents } from 'discord.js'
+const Discord = require('discord.js')
 
 
 let mysql = require('mysql');
@@ -15,6 +17,7 @@ const bitacora = new Map();
 const prefix = '!';
 
 const fs = require('fs');
+//const { required } = require('nodemon/lib/config');
 
 client.commands = new Collection();
 
@@ -42,6 +45,19 @@ client.once('ready', () => {
         name: 'ping',
         description: 'Responde con un pong.',
     })
+
+    commands?.create({
+        name: 'desactivar',
+        description: 'Inabilita un ciclo de bitacora especifico.',
+        options: [
+            {
+                name: 'bitacora',
+                description: 'El id de la bitacora que queres desactivar.',
+                required: true,
+                type: Discord.Constants.ApplicationCommandOptionTypes.NUMBER,
+            },
+        ]
+    })
 });
 
 client.on('interactionCreate', async interaction => {
@@ -51,6 +67,17 @@ client.on('interactionCreate', async interaction => {
 
     if (commandName === 'ping') {
         interaction.reply({ content: 'pong!', ephemeral: true })
+    } else if (commandName === 'desactivar') {
+        let id = options.getNumber('bitacora');
+
+        if ()
+
+        async function updateSql() {
+            connection.query(`UPDATE bitacoras SET estado = 'inactive' WHERE bitacoraId = ${id};`);
+        };
+        await updateSql();
+
+        interaction.reply({ content: `Se desactivo la \`bitacora Nro ${id}\` correctamente.` })
     }
 })
 
@@ -127,7 +154,7 @@ client.on('interactionCreate', async interaction => {
 
             // {!!!} Acá va la parte en la que se inserta a la base de datos
             async function insertSql() {
-                connection.query(`INSERT INTO bitacoras VALUES ("", ${bitacora.get(user).dsId}, "${bitacora.get(user).username}", "${bitacora.get(user).openDate}", "${localISOTime}")`);
+                connection.query(`INSERT INTO bitacoras(bitacoraId, discordId, username, openDate, closeDate) VALUES ("", ${bitacora.get(user).dsId}, "${bitacora.get(user).username}", "${bitacora.get(user).openDate}", "${localISOTime}")`);
             };
             await insertSql();
             
