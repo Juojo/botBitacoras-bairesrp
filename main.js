@@ -1,23 +1,21 @@
 require('dotenv').config();
+
 const {Client, Intents, Collection, MessageEmbed, MessageActionRow, MessageSelectMenu, MessageButton} = require('discord.js');
-//import DiscordJs, { Intents } from 'discord.js'
 const Discord = require('discord.js')
-
-
-let mysql = require('mysql');
-let config = require('./dbNew/config')
-let connection = mysql.createConnection(config);
 
 const client = new Client({
     intents: [ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
 });
+
+let mysql = require('mysql');
+let config = require('./dbNew/config')
+let connection = mysql.createConnection(config);
 
 const bitacora = new Map();
 
 const prefix = '!';
 
 const fs = require('fs');
-//const { required } = require('nodemon/lib/config');
 
 client.commands = new Collection();
 
@@ -31,7 +29,7 @@ for (const file of commandFiles) {
 client.once('ready', () => {
     console.log("Bot bitacoras online!")
 
-    const guildId = '899852504240623617'
+    const guildId = '899852504240623617' // testServer
     const guild = client.guilds.cache.get(guildId)
     let commands
 
@@ -58,6 +56,19 @@ client.once('ready', () => {
             },
         ]
     })
+
+    commands?.create({
+        name: 'activar',
+        description: 'Activa un ciclo de bitacora que se habia desactivado anteriormente.',
+        options: [
+            {
+                name: 'bitacora',
+                description: 'El id de la bitacora que queres reactivar.',
+                required: true,
+                type: Discord.Constants.ApplicationCommandOptionTypes.NUMBER,
+            },
+        ]
+    })
 });
 
 client.on('interactionCreate', async interaction => {
@@ -70,14 +81,55 @@ client.on('interactionCreate', async interaction => {
     } else if (commandName === 'desactivar') {
         let id = options.getNumber('bitacora');
 
-        if ()
+        connection.query(`SELECT max(bitacoraId) As "bitid" FROM bitacoras`, function select(err, resultsMax, fields) {
+            if (err) {
+                return console.error(err);
+            }
+            let maxId = (resultsMax[0]).bitid;
+            if (id > maxId) {
+                interaction.reply({ content: `La \`bitacora Nro ${id}\` no existe.` })
+                return;
+            }
+            connection.query(`select is_active from bitacoras where bitacoraId = ${id};`, function select(err, resultsActive, fields) {
+                if (err) {
+                    return console.log(err);
+                }
+                let selectedId = (resultsActive[0]).is_active;
+                if (selectedId === 0) {
+                    interaction.reply({ content: `La \`bitacora Nro ${id}\` ya se habia desactivado.` })                    
+                } else {
+                    connection.query(`UPDATE bitacoras SET is_active = 0 WHERE bitacoraId = ${id};`);
+            
+                    interaction.reply({ content: `Se desactivo la \`bitacora Nro ${id}\` correctamente.` })
+                }
+            })
+        });
+    } else if (commandName === 'activar') {
+        let id = options.getNumber('bitacora');
 
-        async function updateSql() {
-            connection.query(`UPDATE bitacoras SET estado = 'inactive' WHERE bitacoraId = ${id};`);
-        };
-        await updateSql();
-
-        interaction.reply({ content: `Se desactivo la \`bitacora Nro ${id}\` correctamente.` })
+        connection.query(`SELECT max(bitacoraId) As "bitid" FROM bitacoras`, function select(err, resultsMax, fields) {
+            if (err) {
+                return console.error(err);
+            }
+            let maxId = (resultsMax[0]).bitid;
+            if (id > maxId) {
+                interaction.reply({ content: `La \`bitacora Nro ${id}\` no existe.` })
+                return;
+            }
+            connection.query(`select is_active from bitacoras where bitacoraId = ${id};`, function select(err, resultsActive, fields) {
+                if (err) {
+                    return console.log(err);
+                }
+                let selectedId = (resultsActive[0]).is_active;
+                if (selectedId === 1) {
+                    interaction.reply({ content: `La \`bitacora Nro ${id}\` se encontraba activa anteriormente.` })                    
+                } else {
+                    connection.query(`UPDATE bitacoras SET is_active = 1 WHERE bitacoraId = ${id};`);
+            
+                    interaction.reply({ content: `Se reactivo la \`bitacora Nro ${id}\` correctamente.` })
+                }
+            })
+        });
     }
 })
 

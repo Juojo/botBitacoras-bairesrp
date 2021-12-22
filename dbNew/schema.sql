@@ -1,4 +1,4 @@
-drop database if exists botBitacoras;
+-- drop database if exists botBitacoras;
 create database botBitacoras;
 use botBitacoras;
 
@@ -10,6 +10,6 @@ create table bitacoras (
     closeDate dateTime
 );
 
-ALTER TABLE bitacoras ADD estado varchar(20) DEFAULT 'active';
+ALTER TABLE bitacoras ADD is_active TINYINT(1) DEFAULT 1;
 
-UPDATE bitacoras SET estado = 'inactive' WHERE bitacoraId = 119;
+UPDATE bitacoras SET is_active = 0 WHERE bitacoraId = 119;
