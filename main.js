@@ -154,17 +154,13 @@ client.on('interactionCreate', async interaction => {
         } else {
             const bitAbierta = {
                 color: 0x3BA55D,
-                title: 'Bitacora abierta correctamente <a:tick:902695712163246150>',
+                title: 'Bitacora abierta  <a:tick:902695712163246150>', // <a:tick:902695712163246150>
+                description: 'Tu bitacora se abrio correctamente.',
                 fields: [
                     {
-                        name: 'Dia:',
-                        value: `${dateEmb.toLocaleDateString()}`,
+                        name: 'Fecha de inicio:',
+                        value: `${localISOTime}`,
                         inline: false,
-                    },
-                    {
-                        name: 'Inicio:',
-                        value: `${dateEmb.toLocaleTimeString()}`,
-                        inline: true,
                     },
                 ],
             };
@@ -187,20 +183,39 @@ client.on('interactionCreate', async interaction => {
         if( bitacora.has(user) === false ) {
             interaction.reply({ content: 'Tenes que abrir una bitacora antes', ephemeral: true })
         } else {
+
+            var diff = Math.abs(new Date() - new Date((bitacora.get(user).openDate).replace(/-/g,'/')));
+            
+            function msToTime(ms) {
+                let seconds = (ms / 1000).toFixed(1);
+                let minutes = (ms / (1000 * 60)).toFixed(1);
+                let hours = (ms / (1000 * 60 * 60)).toFixed(1);
+                let days = (ms / (1000 * 60 * 60 * 24)).toFixed(1);
+                if (seconds < 60) return seconds + " Segundos";
+                else if (minutes < 60) return minutes + " Minutos";
+                else if (hours < 24) return hours + " Horas";
+                else return days + " Días"
+              }
+            
+            //console.log(msToTime(diff));
+
             const bitCerrada = {
                 color: 0xed4245,
-                title: 'Bitacora cerrada correctamente',
+                title: 'Bitacora cerrada',
+                description: 'La bitacora se cerro y se subio a la base de datos',
                 fields: [
                     {
-                        name: 'Dia:',
-                        value: `${dateEmb.toLocaleDateString()}`,
-                        inline: false,
+                        name: 'Fecha de inicio:',
+                        value: `${bitacora.get(user).openDate}`,
                     },
                     {
-                        name: 'Inicio:',
-                        value: `${dateEmb.toLocaleTimeString()}`,
-                        inline: true,
+                        name: 'Fecha de cierre:',
+                        value: `${localISOTime}`
                     },
+                    {
+                        name: 'Duración:',
+                        value: `${msToTime(diff)}`,
+                    }
                 ],
             };
 
@@ -215,7 +230,7 @@ client.on('interactionCreate', async interaction => {
                     return console.error(err);
                 }
                 let id = (results[0]).bitid;
-                console.log(id);
+                //console.log(id);
 
                 connection.query(`select timediff(closeDate, openDate) As "duracion" from bitacoras where bitacoraId = ${id}`, function select2(err, results, fields) {
                     if (err) {
