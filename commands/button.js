@@ -32,8 +32,8 @@ module.exports = {
         const helpEmbed = new MessageEmbed()
                     .setColor('#187bcd')
                     .addFields(
-                        { name: '¿Cómo funciona el bot?', value: '・Si queres **abrir** una bitácora tenes que hacer click sobre el botón que dice *"Abrir"*, esto resultará en una respuesta indicando si se abrió correctamente.' },
-                        { name: '\u200b', value: '・Para **cerrarla** es muy similar solo que esta vez es haciendo click en el botón de *"Cerrar"*, el bot también te notificará si la acción se concreta.' },
+                        { name: '¿Cómo funciona el bot?', value: '・Si queres **abrir** una bitácora tenes que hacer click sobre el botón que dice `Abrir`, esto resultará en una respuesta indicando si se abrió correctamente.' },
+                        { name: '\u200b', value: '・Para **cerrarla** es muy similar solo que esta vez es haciendo click en el botón de `Cerrar`, el bot también te notificará si la acción se concreta.' },
                     );
 
         message.channel.send({ embeds: [introEmbed, helpEmbed], components: [row] })

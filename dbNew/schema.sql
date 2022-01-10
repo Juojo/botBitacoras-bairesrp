@@ -11,5 +11,24 @@ create table bitacoras (
 );
 
 ALTER TABLE bitacoras ADD is_active TINYINT(1) DEFAULT 1;
+ALTER TABLE bitacoras ADD week_day int;
 
 UPDATE bitacoras SET is_active = 0 WHERE bitacoraId = 119;
+
+-- Horas totales
+select sum(openDate) from bitacoras where discordId = 477581625841156106;
+
+-- seleccionar duracion de todos los ciclos de esta semana => select opendDate que este dentro de esta semana
+
+select timediff(closeDate, openDate) As "duracion" from bitacoras where bitacoraId = ${id}
+
+select sum(timediff(closeDate, openDate)) As "suma de duraciones"
+from bitacoras
+where (
+
+)
+
+INSERT INTO bitacoras values(week_day) SELECT WEEK(NOW()) AS Current_Week;
+
+
+seleccionar los ciclos que comienzen en esta semana (opendDate) y luego averiguar la duracion de cada uno de ellos para poder sumarla y mostrarla como output

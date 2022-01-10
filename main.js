@@ -1,3 +1,4 @@
+const moment = require('moment')
 require('dotenv').config();
 
 const {Client, Intents, Collection, MessageEmbed, MessageActionRow, MessageSelectMenu, MessageButton} = require('discord.js');
@@ -220,10 +221,21 @@ client.on('interactionCreate', async interaction => {
             };
 
             // {!!!} Acá va la parte en la que se inserta a la base de datos
-            async function insertSql() {
-                connection.query(`INSERT INTO bitacoras(bitacoraId, discordId, username, openDate, closeDate) VALUES ("", ${bitacora.get(user).dsId}, "${bitacora.get(user).username}", "${bitacora.get(user).openDate}", "${localISOTime}")`);
-            };
-            await insertSql();
+
+            connection.query(`SELECT WEEK(NOW()) AS week_day;`), function select(err, results, fields) {
+                if (err) {
+                    return console.err(err);
+                }
+                let weekDay = (results[0].week_day);
+                console.log(weekDay);
+                
+                connection.query(`INSERT INTO bitacoras(bitacoraId, discordId, username, openDate, closeDate, week_day) VALUES ("", ${bitacora.get(user).dsId}, "${bitacora.get(user).username}", "${bitacora.get(user).openDate}", "${localISOTime}", WEEK(NOW())`);
+            } // TEST
+
+            // async function insertSql() {
+            //     connection.query(`INSERT INTO bitacoras(bitacoraId, discordId, username, openDate, closeDate, week_day) VALUES ("", ${bitacora.get(user).dsId}, "${bitacora.get(user).username}", "${bitacora.get(user).openDate}", "${localISOTime}", SELECT WEEK(NOW()) from bitacoras)`);
+            // };
+            // await insertSql();
             
             connection.query(`SELECT max(bitacoraId) As "bitid" FROM bitacoras where discordId = ${user}`, function select(err, results, fields) {
                 if (err) {
@@ -255,6 +267,21 @@ client.on('interactionCreate', async interaction => {
 
             interaction.reply({ embeds: [bitCerrada], ephemeral: true }); // Envia una respuesta al usuario
         }
+    } else if (interaction.customId === 'status') {
+
+        var now = moment();
+        var input = moment('2022/01/10 00:00:00');
+        var isThisWeek = (now.isoWeek() == input.isoWeek())
+
+        console.log(isThisWeek);
+
+        connection.query(`SELECT max(bitacoraId) As "bitid" FROM bitacoras where discordId = ${user}`, function select(err, results, fields) {
+            if (err) {
+                return console.error(err);
+            }
+            let id = (results[0]).bitid;
+        }); // TEST
+
     }
 });
 
