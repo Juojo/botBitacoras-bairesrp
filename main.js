@@ -148,6 +148,17 @@ client.on('interactionCreate', async interaction => {
 
     const logsChat = client.channels.cache.get('899866780741296138')
 
+    function msToTime(ms) {
+        let seconds = (ms / 1000).toFixed(1);
+        let minutes = (ms / (1000 * 60)).toFixed(1);
+        let hours = (ms / (1000 * 60 * 60)).toFixed(1);
+        let days = (ms / (1000 * 60 * 60 * 24)).toFixed(1);
+        if (seconds < 60) return seconds + " Segundos";
+        else if (minutes < 60) return minutes + " Minutos";
+        else if (hours < 24) return hours + " Horas";
+        else return days + " Días"
+      }
+
     // OPEN =>
     if (interaction.customId === 'open') {
         if( bitacora.has(user) === true ) {
@@ -187,17 +198,7 @@ client.on('interactionCreate', async interaction => {
 
             var diff = Math.abs(new Date() - new Date((bitacora.get(user).openDate).replace(/-/g,'/')));
             
-            function msToTime(ms) {
-                let seconds = (ms / 1000).toFixed(1);
-                let minutes = (ms / (1000 * 60)).toFixed(1);
-                let hours = (ms / (1000 * 60 * 60)).toFixed(1);
-                let days = (ms / (1000 * 60 * 60 * 24)).toFixed(1);
-                if (seconds < 60) return seconds + " Segundos";
-                else if (minutes < 60) return minutes + " Minutos";
-                else if (hours < 24) return hours + " Horas";
-                else return days + " Días"
-              }
-            
+            //console.log(diff);
             //console.log(msToTime(diff));
 
             const bitCerrada = {
@@ -222,20 +223,10 @@ client.on('interactionCreate', async interaction => {
 
             // {!!!} Acá va la parte en la que se inserta a la base de datos
 
-            connection.query(`SELECT WEEK(NOW()) AS week_day;`), function select(err, results, fields) {
-                if (err) {
-                    return console.err(err);
-                }
-                let weekDay = (results[0].week_day);
-                console.log(weekDay);
-                
-                connection.query(`INSERT INTO bitacoras(bitacoraId, discordId, username, openDate, closeDate, week_day) VALUES ("", ${bitacora.get(user).dsId}, "${bitacora.get(user).username}", "${bitacora.get(user).openDate}", "${localISOTime}", WEEK(NOW())`);
-            } // TEST
-
-            // async function insertSql() {
-            //     connection.query(`INSERT INTO bitacoras(bitacoraId, discordId, username, openDate, closeDate, week_day) VALUES ("", ${bitacora.get(user).dsId}, "${bitacora.get(user).username}", "${bitacora.get(user).openDate}", "${localISOTime}", SELECT WEEK(NOW()) from bitacoras)`);
-            // };
-            // await insertSql();
+            async function insertSql() {
+                connection.query(`INSERT INTO bitacoras(bitacoraId, discordId, username, openDate, closeDate) VALUES ("", ${bitacora.get(user).dsId}, "${bitacora.get(user).username}", "${bitacora.get(user).openDate}", "${localISOTime}")`);
+            };
+            await insertSql();
             
             connection.query(`SELECT max(bitacoraId) As "bitid" FROM bitacoras where discordId = ${user}`, function select(err, results, fields) {
                 if (err) {
@@ -269,19 +260,55 @@ client.on('interactionCreate', async interaction => {
         }
     } else if (interaction.customId === 'status') {
 
-        var now = moment();
-        var input = moment('2022/01/10 00:00:00');
-        var isThisWeek = (now.isoWeek() == input.isoWeek())
+        // var now = moment();
+        // var input = moment('2022/01/10 00:00:00');
+        // var isThisWeek = (now.isoWeek() == input.isoWeek())
 
-        console.log(isThisWeek);
+        // const today = moment();
+        // const from_date = today.startOf('week');
+        // const to_date = today.endOf('week');
+        // console.log({
+        //     from_date: from_date.toString(),
+        //     today: moment().toString(),
+        //     to_date: to_date.toString(),
+        // });
 
-        connection.query(`SELECT max(bitacoraId) As "bitid" FROM bitacoras where discordId = ${user}`, function select(err, results, fields) {
+        console.log(moment().startOf('isoWeek'));
+        // console.log(moment().startOf('isoWeek').toISOString().slice(0, 19).replace('T', ' '));
+        // console.log(moment().endOf('isoWeek'));
+
+        console.log(moment().startOf('isoWeek').toISOString())
+
+        //console.log(isThisWeek);
+
+        connection.query(`select sum(timediff(closeDate, openDate)) AS duracion_semana from bitacoras where discordId = ${user} and opendate between "2022-01-09 23:59:59" and "2022-01-17 00:00:00";`, function select(err, results, fields) {
             if (err) {
-                return console.error(err);
+                return console.log(err);
             }
-            let id = (results[0]).bitid;
-        }); // TEST
+            let lenghtWeek = (results[0].duracion_semana)
+            //console.log(msToTime(lenghtWeek*1000));
 
+            connection.query(`select count(openDate) As cantidad_semana from bitacoras where discordId = ${user} and opendate between "2022-01-09 23:59:59" and "2022-01-17 00:00:00"`, function select(err, results, fields){
+                if(err) {
+                    console.log(err);
+                }
+                let countWeek = (results[0].cantidad_semana)
+            
+                if (countWeek == 1) {
+                    var V = "vez";
+                } else {
+                    var V = "veces";
+                }
+
+                const bitStatus = {
+                    color: 0x4F545C,
+                    title: 'Estado de mis bitacoras',
+                    description: `En esta semana roleaste **${msToTime(lenghtWeek*1000)}** y abriste **${countWeek}** ${V} bitacora.`
+                }
+
+                interaction.reply({ embeds: [bitStatus], ephemeral: true })
+            })
+        })
     }
 });
 
