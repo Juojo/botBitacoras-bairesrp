@@ -70,6 +70,11 @@ client.once('ready', () => {
             },
         ]
     })
+
+    commands?.create({
+        name: 'anuncio',
+        description: 'Muestra el total de horas en la semana de todos los usuarios registrados.'
+    })
 });
 
 client.on('interactionCreate', async interaction => {
@@ -131,6 +136,21 @@ client.on('interactionCreate', async interaction => {
                 }
             })
         });
+    } else if (commandName === 'anuncio') {
+        connection.query(`select username, discordId, count(openDate) As countCiclos_semana, CAST(sum(timediff(closeDate, openDate)) AS TIME) As "Total" from bitacoras where is_active = 1 and opendate between "2021-01-09 23:59:59" and "2022-01-17 00:00:00" group by discordId`, function select(err, results, fields) {
+            if (err) {
+                console.log(err);
+            }
+            let user = (results[0].username)
+            let discordId = (results[0].discordId)
+            let count = (results[0].countCiclos_semana)
+            let total = (results[0].Total)
+
+            console.log(user);
+            console.log(discordId);
+            console.log(count);
+            console.log(total);
+        })
     }
 })
 
@@ -152,11 +172,11 @@ client.on('interactionCreate', async interaction => {
         let seconds = (ms / 1000).toFixed(1);
         let minutes = (ms / (1000 * 60)).toFixed(1);
         let hours = (ms / (1000 * 60 * 60)).toFixed(1);
-        let days = (ms / (1000 * 60 * 60 * 24)).toFixed(1);
+        //let days = (ms / (1000 * 60 * 60 * 24)).toFixed(1);
         if (seconds < 60) return seconds + " Segundos";
         else if (minutes < 60) return minutes + " Minutos";
-        else if (hours < 24) return hours + " Horas";
-        else return days + " Días"
+        else /*if (hours < 24)*/ return hours + " Horas";
+        //else return days + " Días"
       }
 
     // OPEN =>
@@ -260,35 +280,20 @@ client.on('interactionCreate', async interaction => {
         }
     } else if (interaction.customId === 'status') {
 
-        // var now = moment();
-        // var input = moment('2022/01/10 00:00:00');
-        // var isThisWeek = (now.isoWeek() == input.isoWeek())
+        let StartW = moment(moment().startOf('isoWeek'));
+        let EndW = moment(moment().endOf('isoWeek'));
 
-        // const today = moment();
-        // const from_date = today.startOf('week');
-        // const to_date = today.endOf('week');
-        // console.log({
-        //     from_date: from_date.toString(),
-        //     today: moment().toString(),
-        //     to_date: to_date.toString(),
-        // });
+        //console.log(moment(StartW).subtract(1, 'seconds').format('YYYY-MM-DD HH:mm:ss'));
+        //console.log(moment(EndW).add(1, 'seconds').format('YYYY-MM-DD HH:mm:ss'));
 
-        console.log(moment().startOf('isoWeek'));
-        // console.log(moment().startOf('isoWeek').toISOString().slice(0, 19).replace('T', ' '));
-        // console.log(moment().endOf('isoWeek'));
-
-        console.log(moment().startOf('isoWeek').toISOString())
-
-        //console.log(isThisWeek);
-
-        connection.query(`select sum(timediff(closeDate, openDate)) AS duracion_semana from bitacoras where discordId = ${user} and opendate between "2022-01-09 23:59:59" and "2022-01-17 00:00:00";`, function select(err, results, fields) {
+        connection.query(`select sum(timediff(closeDate, openDate)) AS duracion_semana from bitacoras where discordId = ${user} and is_active = 1 and opendate between "${moment(StartW).subtract(1, 'seconds').format('YYYY-MM-DD HH:mm:ss')}" and "${moment(EndW).add(1, 'seconds').format('YYYY-MM-DD HH:mm:ss')}";`, function select(err, results, fields) {
             if (err) {
                 return console.log(err);
             }
             let lenghtWeek = (results[0].duracion_semana)
             //console.log(msToTime(lenghtWeek*1000));
 
-            connection.query(`select count(openDate) As cantidad_semana from bitacoras where discordId = ${user} and opendate between "2022-01-09 23:59:59" and "2022-01-17 00:00:00"`, function select(err, results, fields){
+            connection.query(`select count(openDate) As cantidad_semana from bitacoras where discordId = ${user} and is_active = 1 and opendate between "2022-01-09 23:59:59" and "2022-01-17 00:00:00"`, function select(err, results, fields){
                 if(err) {
                     console.log(err);
                 }
@@ -300,13 +305,39 @@ client.on('interactionCreate', async interaction => {
                     var V = "veces";
                 }
 
-                const bitStatus = {
-                    color: 0x4F545C,
-                    title: 'Estado de mis bitacoras',
-                    description: `En esta semana roleaste **${msToTime(lenghtWeek*1000)}** y abriste **${countWeek}** ${V} bitacora.`
-                }
+                connection.query(`select sum(timediff(closeDate, openDate)) AS duracion_total from bitacoras where discordId = ${user} and is_active = 1`, function select(err, results, fields) {
+                    if(err) {
+                        console.log(err);
+                    }
+                    let lenghtTotal = (results[0].duracion_total)
 
-                interaction.reply({ embeds: [bitStatus], ephemeral: true })
+                    connection.query(`select count(openDate) As cantidad_total from bitacoras where discordId = ${user} and is_active = 1`, function select(err, results, fields) {
+                        if (err) {
+                            console.log(err);
+                        }
+                        let countTotal = (results[0].cantidad_total)
+                        
+                        if (countTotal == 1) {
+                            var C = "ciclo";
+                        } else {
+                            var C = "ciclos";
+                        }
+
+                        const bitStatus = {
+                            color: 0x4F545C,
+                            title: 'Estado de mis bitacoras',
+                            description: `En esta semana roleaste **${msToTime(lenghtWeek*1000)}** y abriste **${countWeek}** ${V} bitacora.`,
+                            fields: [
+                                {
+                                    name: '\u200b',
+                                    value: `Tu tiempo total es de **${msToTime(lenghtTotal*1000)}** con **${countTotal}** ${C} de bitacora completados.`
+                                }
+                            ],
+                        }
+        
+                        interaction.reply({ embeds: [bitStatus], ephemeral: true })
+                    })
+                })
             })
         })
     }

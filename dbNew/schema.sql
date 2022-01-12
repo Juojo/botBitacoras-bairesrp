@@ -44,3 +44,10 @@ INSERT INTO bitacoras values(week_day) SELECT WEEK(NOW()) AS Current_Week;
 seleccionar los ciclos que comienzen en esta semana (opendDate) y luego averiguar la duracion de cada uno de ellos para poder sumarla y mostrarla como output
 
 esta semana => select CAST(sum(timediff(closeDate, openDate)) AS TIME) from bitacoras where opendate between "2022-01-09 23:59:59" and "2022-01-17 00:00:00";
+
+-- Mensaje que se mandaria semanalmente con la info de cada user
+
+select username, discordId, count(openDate) As countCiclos_semana, CAST(sum(timediff(closeDate, openDate)) AS TIME) As "Total en la semana"
+from bitacoras
+where is_active = 1 and opendate between "2021-01-09 23:59:59" and "2022-01-17 00:00:00"
+group by discordId;
