@@ -1,7 +1,7 @@
 const moment = require('moment')
 require('dotenv').config();
 
-const {Client, Intents, Collection, MessageEmbed, MessageActionRow, MessageSelectMenu, MessageButton} = require('discord.js');
+const {Client, Intents, Collection, MessageEmbed, MessageActionRow, MessageSelectMenu, MessageButton, MessageAttachment} = require('discord.js');
 const Discord = require('discord.js')
 
 const client = new Client({
@@ -13,6 +13,7 @@ let config = require('./dbNew/config')
 let connection = mysql.createConnection(config);
 
 const bitacora = new Map();
+const anuncio = new Map();
 
 const prefix = '!';
 
@@ -137,19 +138,47 @@ client.on('interactionCreate', async interaction => {
             })
         });
     } else if (commandName === 'anuncio') {
-        connection.query(`select username, discordId, count(openDate) As countCiclos_semana, CAST(sum(timediff(closeDate, openDate)) AS TIME) As "Total" from bitacoras where is_active = 1 and opendate between "2021-01-09 23:59:59" and "2022-01-17 00:00:00" group by discordId`, function select(err, results, fields) {
+        connection.query(`select username, discordId, count(openDate) As countCiclos_semana, CAST(sum(timediff(closeDate, openDate)) AS TIME) As "total" from bitacoras where is_active = 1 and opendate between "2021-01-09 23:59:59" and "2022-01-17 00:00:00" group by discordId order by total DESC`, function select(err, results, fields) {
             if (err) {
                 console.log(err);
             }
             let user = (results[0].username)
             let discordId = (results[0].discordId)
             let count = (results[0].countCiclos_semana)
-            let total = (results[0].Total)
+            let total = (results[0].total)
 
-            console.log(user);
-            console.log(discordId);
-            console.log(count);
-            console.log(total);
+            // console.log(user);
+            // console.log(discordId);
+            // console.log(count);
+            // console.log(total);
+
+            for(i=0; i<2; i++){
+                anuncio.set(
+                    `${i}`, {
+                        username: `${results[i].username}`,
+                        discordId: `${results[i].discordId}`,
+                        cantidadCiclos: `${results[i].countCiclos_semana}`,
+                        horasSemana: `${results[i].total}`
+                    }
+                )
+            }
+            //console.log(anuncio);
+
+            var anuncioObj = {
+                "one": [1, 2],
+                "two": ["hola"]
+            }
+
+            //var jsonAnuncio = JSON.stringify(anuncioObj);
+            var jsonAnuncio = JSON.stringify(Object.fromEntries(anuncio), null, 2);
+            fs.writeFile('./anunciosSemanales/example.json', jsonAnuncio, function(err, result) {
+                if(err) console.log('error', err);
+            });
+
+            const file = new MessageAttachment('example.json')
+
+            interaction.reply({ content: '<@&899865248054509679> --- **__Bitacoras de la semana__:  `10/01/22` - `16/01/22`**', files: [file] })
+
         })
     }
 })
