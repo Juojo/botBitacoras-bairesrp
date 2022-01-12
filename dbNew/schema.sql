@@ -49,5 +49,5 @@ esta semana => select CAST(sum(timediff(closeDate, openDate)) AS TIME) from bita
 
 select username, discordId, count(openDate) As countCiclos_semana, CAST(sum(timediff(closeDate, openDate)) AS TIME) As "Total en la semana"
 from bitacoras
-where is_active = 1 and opendate between "2021-01-09 23:59:59" and "2022-01-17 00:00:00"
+where is_active = 1 and closeDate between "2022-01-09 23:59:59" and "2022-01-17 00:00:00"
 group by discordId;

@@ -15,6 +15,9 @@ let connection = mysql.createConnection(config);
 const bitacora = new Map();
 const anuncio = new Map();
 
+let StartW = moment(moment().startOf('isoWeek'));
+let EndW = moment(moment().endOf('isoWeek'));
+
 const prefix = '!';
 
 const fs = require('fs');
@@ -138,47 +141,35 @@ client.on('interactionCreate', async interaction => {
             })
         });
     } else if (commandName === 'anuncio') {
-        connection.query(`select username, discordId, count(openDate) As countCiclos_semana, CAST(sum(timediff(closeDate, openDate)) AS TIME) As "total" from bitacoras where is_active = 1 and opendate between "2021-01-09 23:59:59" and "2022-01-17 00:00:00" group by discordId order by total DESC`, function select(err, results, fields) {
+        connection.query(`select username, discordId, count(openDate) As countCiclos_semana, CAST(sum(timediff(closeDate, openDate)) AS TIME) As "total" from bitacoras where is_active = 1 and closeDate between "${moment(StartW).subtract(1, 'seconds').format('YYYY-MM-DD HH:mm:ss')}" and "${moment(EndW).add(1, 'seconds').format('YYYY-MM-DD HH:mm:ss')}" group by discordId order by total DESC`, function select(err, results, fields) {
             if (err) {
                 console.log(err);
             }
-            let user = (results[0].username)
-            let discordId = (results[0].discordId)
-            let count = (results[0].countCiclos_semana)
-            let total = (results[0].total)
-
-            // console.log(user);
-            // console.log(discordId);
-            // console.log(count);
-            // console.log(total);
+            anuncio.set(
+                'info', `Bitacoras de la PFA en la semana del ${moment(StartW).format('DD-MM-YYYY').replace(/-/g, '/')} al ${moment(EndW).format('DD-MM-YYYY').replace(/-/g, '/')}`
+            )
 
             for(i=0; i<2; i++){
                 anuncio.set(
                     `${i}`, {
                         username: `${results[i].username}`,
                         discordId: `${results[i].discordId}`,
-                        cantidadCiclos: `${results[i].countCiclos_semana}`,
-                        horasSemana: `${results[i].total}`
+                        cantidadCiclosEnSemana: `${results[i].countCiclos_semana}`,
+                        tiempoTotalEnSemana: `${results[i].total}`
                     }
                 )
             }
-            //console.log(anuncio);
 
-            var anuncioObj = {
-                "one": [1, 2],
-                "two": ["hola"]
-            }
-
-            //var jsonAnuncio = JSON.stringify(anuncioObj);
             var jsonAnuncio = JSON.stringify(Object.fromEntries(anuncio), null, 2);
-            fs.writeFile('./anunciosSemanales/example.json', jsonAnuncio, function(err, result) {
+            let ruta = `./anunciosSemanales/${moment(StartW).format('DD-MM-YY').replace(/-/g, '.')}_${moment(EndW).format('DD-MM-YY').replace(/-/g, '.')}bitacoras.json`
+            fs.writeFile(`${ruta}`, jsonAnuncio, function(err, result) {
                 if(err) console.log('error', err);
             });
+            anuncio.clear()
 
-            const file = new MessageAttachment('example.json')
+            const file = new MessageAttachment(`${ruta}`)
 
-            interaction.reply({ content: '<@&899865248054509679> --- **__Bitacoras de la semana__:  `10/01/22` - `16/01/22`**', files: [file] })
-
+            interaction.reply({ content: `<@&899865248054509679> --- **__Bitacoras de la semana__:  \`${moment(StartW).format('DD-MM-YYYY').replace(/-/g, '/')}\` - \`${moment(EndW).format('DD-MM-YYYY').replace(/-/g, '/')}\`**`, files: [file] })
         })
     }
 })
@@ -309,20 +300,17 @@ client.on('interactionCreate', async interaction => {
         }
     } else if (interaction.customId === 'status') {
 
-        let StartW = moment(moment().startOf('isoWeek'));
-        let EndW = moment(moment().endOf('isoWeek'));
-
         //console.log(moment(StartW).subtract(1, 'seconds').format('YYYY-MM-DD HH:mm:ss'));
         //console.log(moment(EndW).add(1, 'seconds').format('YYYY-MM-DD HH:mm:ss'));
 
-        connection.query(`select sum(timediff(closeDate, openDate)) AS duracion_semana from bitacoras where discordId = ${user} and is_active = 1 and opendate between "${moment(StartW).subtract(1, 'seconds').format('YYYY-MM-DD HH:mm:ss')}" and "${moment(EndW).add(1, 'seconds').format('YYYY-MM-DD HH:mm:ss')}";`, function select(err, results, fields) {
+        connection.query(`select sum(timediff(closeDate, openDate)) AS duracion_semana from bitacoras where discordId = ${user} and is_active = 1 and closeDate between "${moment(StartW).subtract(1, 'seconds').format('YYYY-MM-DD HH:mm:ss')}" and "${moment(EndW).add(1, 'seconds').format('YYYY-MM-DD HH:mm:ss')}";`, function select(err, results, fields) {
             if (err) {
                 return console.log(err);
             }
             let lenghtWeek = (results[0].duracion_semana)
             //console.log(msToTime(lenghtWeek*1000));
 
-            connection.query(`select count(openDate) As cantidad_semana from bitacoras where discordId = ${user} and is_active = 1 and opendate between "2022-01-09 23:59:59" and "2022-01-17 00:00:00"`, function select(err, results, fields){
+            connection.query(`select count(openDate) As cantidad_semana from bitacoras where discordId = ${user} and is_active = 1 and closeDate between "2022-01-09 23:59:59" and "2022-01-17 00:00:00"`, function select(err, results, fields){
                 if(err) {
                     console.log(err);
                 }
