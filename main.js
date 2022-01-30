@@ -31,8 +31,6 @@ for (const file of commandFiles) {
     client.commands.set(command.name, command);
 };
 
-//console.log(moment(EndW).subtract(15, 'minutes').format('DD-MM-YY HH:mm:ss'));
-
 client.once('ready', () => {
     console.log("Bot bitacoras online!")
 
