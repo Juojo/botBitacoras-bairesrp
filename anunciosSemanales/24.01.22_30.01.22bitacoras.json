@@ -1,0 +1,15 @@
+{
+  "0": {
+    "username": "Juojo",
+    "discordId": "477581625841156100",
+    "cantidadCiclosEnSemana": "2",
+    "tiempoTotalEnSemana": "00:00:02"
+  },
+  "1": {
+    "username": "userTest",
+    "discordId": "710300636817653800",
+    "cantidadCiclosEnSemana": "1",
+    "tiempoTotalEnSemana": "00:00:02"
+  },
+  "info": "Bitacoras de la PFA en la semana del 24/01/2022 al 30/01/2022"
+}
